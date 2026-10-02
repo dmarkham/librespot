@@ -1646,9 +1646,11 @@ impl SpircTask {
             let repeat_context = self.connect_state.repeat_context();
             match self.connect_state.prev_track()? {
                 None if repeat_context => self.connect_state.reset_playback_to_position(None)?,
+                // spin: at the first track with nothing before it, restart
+                // it (as the official clients do) instead of stopping.
                 None => {
                     self.connect_state.reset_playback_to_position(None)?;
-                    self.handle_stop()
+                    self.load_track(self.connect_state.is_playing(), 0)?
                 }
                 Some(_) => self.load_track(self.connect_state.is_playing(), 0)?,
             }
